@@ -36,5 +36,9 @@ global <- global %>% rbind(temp) %>% rbind(temp2) %>% arrange(DATE)
 # Big cahuna culling to get one data point per year
 # Established pecking order based on proximity to Greenfield, NH
 
-#global <- global[c(1,4,5,8,11,13:16,18:20),]
+global <- global[c(1,4,5,8,11,13,15:17,19:23,26,28,30,33,35,39,42,45,50,54,60,65,68,71,75,80,89,90,92:95,97:98,102,106,109,112,115,119),] %>% 
+  rbind(temp1) %>% arrange(DATE)
+
+# Yeehaw, it's ready for action! Let's add in some core data.
+
 
