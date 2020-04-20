@@ -4,6 +4,12 @@
 ############## 1973 - 2014 #################
 ############################################
 
+# Preparing environment
+
+library(tidyverse)
+library(readxl)
+library(infer)
+
 # Reading in the data 
 
 global1 <- read_csv('./raw-data/2117690.csv')
@@ -36,9 +42,10 @@ global <- global %>% rbind(temp) %>% rbind(temp2) %>% arrange(DATE)
 # Big cahuna culling to get one data point per year
 # Established pecking order based on proximity to Greenfield, NH
 
-global <- global[c(1,4,5,8,11,13,15:17,19:23,26,28,30,33,35,39,42,45,50,54,60,65,68,71,75,80,89,90,92:95,97:98,102,106,109,112,115,119),] %>% 
+global <- global[c(1,4,5,8,11,13,15:17,19:23,26,28,30,33,35,39,42,45,50,54,60,65,68,71,75,80,89,90,92:95,97,99,102,106,109,112,115,119),] %>% 
   rbind(temp1) %>% arrange(DATE)
 
 # Yeehaw, it's ready for action! Let's add in some core data.
 
+read_excel #here we come
 
