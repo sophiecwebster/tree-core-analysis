@@ -19,6 +19,7 @@ global1 <- global1 %>% select(!DSNW)
 global <- rbind(global1, global2)
 
 temp1 <- global %>% filter(DATE == 2006 & DT00 == 4)
+
 temp2 <- global %>% filter(DATE == 1982) %>% .[6,]
 
 # Appending the second data set (2000 to 2014) to the first (1970 to 2000)
@@ -47,5 +48,13 @@ global <- global[c(1,4,5,8,11,13,15:17,19:23,26,28,30,33,35,39,42,45,50,54,60,65
 
 # Yeehaw, it's ready for action! Let's add in some core data.
 
-read_excel #here we come
+# This is red spruce T8's core data from ImageJ
+
+t8 <- read_csv('./raw-data/t8-core.csv')
+t8 <- t8$Length
+
+# T7
+
+t7 <- read_csv('./raw-data/t7-core.csv')
+t7 <- t7$Length
 
