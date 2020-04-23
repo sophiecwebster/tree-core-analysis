@@ -9,6 +9,7 @@
 library(tidyverse)
 library(readxl)
 library(infer)
+library(broom)
 
 # Reading in the data 
 
@@ -150,8 +151,24 @@ spruced %>%
 
 elev <- tibble(m = c(500, 542, 558, 616, 654), tree = c(4:8))
 
+####################
+# Regression Hours #
+####################
+
+spruced %>%
+  lm(length ~ PRCP, data = .) %>%
+  augment()
+
+l_and_temp <- spruced %>%
+  lm(length ~ TAVG, data = .) 
+
+l_and_temp <- spruce %>%
+  lm(T4 ~ TAVG, data = .) %>%
+  augment()
 
 
+%>%
+  augment()
 
 
 
