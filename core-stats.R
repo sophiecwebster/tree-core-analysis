@@ -10,6 +10,8 @@ library(tidyverse)
 library(readxl)
 library(infer)
 library(broom)
+library(gt)
+library(ggpubr)
 
 # Reading in the data 
 
@@ -49,7 +51,7 @@ global <- global[c(1,4,5,8,11,13,15:17,19:23,26,28,30,33,35,39,42,45,50,54,60,65
 
 # Yeehaw, it's ready for action! Let's add in some core data.
 
-# This is red spruce T8's core data, analyzed with ImageJ
+# This is red spruce T8's core data, analyzed with ImageJ software
 
 t8 <- read_csv('./raw-data/t8-core.csv')
 t8 <- t8$Length # 59
@@ -114,7 +116,9 @@ spruced %>%
   theme_classic() +
   labs(
     x = "Tree",
-    y = "Growth (mm)"
+    y = "Growth (mm)",
+    title = "Annual Growth Distributions in Red Spruce Trees",
+    subtitle = "1970-2014"
   ) + scale_fill_manual(values=c("#66FFBC", "#5DE8D2", "#74EFFF", "#5DB3E8", "#669DFF")) +
   theme(legend.position = "none")
 
@@ -149,7 +153,7 @@ spruced %>%
 
 # Recording/comparing elevation
 
-elev <- tibble(m = c(500, 542, 558, 616, 654), tree = c(4:8))
+elev <- tibble(m = c(500, 542, 558, 616, 654), tree = c("T4", "T5", "T6", "T7", "T8"))
 
 ####################
 # Regression Hours #
@@ -167,9 +171,64 @@ l_and_temp <- spruce %>%
   augment()
 
 
-%>%
-  augment()
+# 
 
+spruced %>% 
+      ggplot(aes(TAVG, length, color = tree)) + geom_point() +
+  labs(
+    x = "Annual Average Temperature (F)",
+    y = "Growth (mm)",
+    title = "Annual Average Temperature versus \nAnnual Red Spruce Growth"
+  ) +
+  theme_minimal() +
+  geom_smooth(method = "lm", se = F) + 
+  scale_color_discrete(name = "Tree ID")
 
+ggsave(filename = '~/Desktop/OEB 55/growthvtemp.jpg', plot = last_plot())
 
+# facet wrapping instead
 
+spruced %>% 
+  ggplot(aes(TAVG, length, color=tree)) + geom_point() +
+  labs(
+    x = "Annual Average Temperature (F)",
+    y = "Growth (mm)",
+    title = "Annual Average Temperature versus Annual Red Spruce Growth"
+  ) +
+  theme_minimal() +
+  facet_wrap(~ tree) +
+  geom_smooth(method = "lm", se = F) + 
+  scale_color_discrete(name = "Tree ID") +
+  stat_cor(label.x = 45, label.y = 7.7) +
+  stat_regline_equation(label.x = 45, label.y = 6.7) +
+  theme(legend.position = "none")
+  
+
+################
+# Elevation Table
+
+elev %>%
+  gt() %>%
+  tab_header(
+    title = "Elevation of Sampled Red Spruce Trees",
+    subtitle="Pack Monadnock, NH"
+  ) %>%
+  cols_label(
+    tree = "Tree ID",
+    m = "Elevation (m)"
+  ) %>%
+  cols_align(
+    align = "center"
+  ) %>%
+  cols_move_to_start(
+    columns = vars(tree)
+    )
+
+# Function for calculating R^2 and p value
+
+pval <- function(x, y, data) {
+  temp <- lm(y ~ x, data = data)
+  return(glance(temp)[,c(1,5)])
+}
+
+reg_stats <- tibble(tree = c("T4", "T5", "T6", "T7", "T8"), rsquared = c(0.356, 0.0181, 0.225, 0.226, 0.0244), pval = c(0.0000150, .378, .000989, .000967, .305))
