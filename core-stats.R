@@ -232,3 +232,86 @@ pval <- function(x, y, data) {
 }
 
 reg_stats <- tibble(tree = c("T4", "T5", "T6", "T7", "T8"), rsquared = c(0.356, 0.0181, 0.225, 0.226, 0.0244), pval = c(0.0000150, .378, .000989, .000967, .305))
+
+
+meany <- spruced %>%
+  group_by(tree) %>%
+  summarize(avg_growth = mean(length))
+
+meany <- full_join(meany, elev, by = "tree")
+
+meany %>%
+  ggplot(aes(m, avg_growth)) + geom_point(color = "forestgreen") + geom_smooth(se = F, method = "lm", color = "forestgreen") + 
+  stat_regline_equation(label.x = 600, label.y = 3) + stat_cor(label.x = 600, label.y = 2.8) +
+  theme_minimal() +
+  labs(
+    title = "Elevation versus Average Annual Growth",
+    subtitle = "Red Spruces, 1970-2014"
+  )
+
+
+## Monthly Stuff
+################################
+
+# load other data! do it Sophie!
+# don't forget to rbind
+
+second <- yo %>%
+  filter(!is.na(TAVG))
+
+library(lubridate)
+
+g00d_temps <- second %>% filter(month(.$DATE) %in% c(5,6,7,8,9))
+
+temps_time <- g00d_temps %>%
+  group_by(year(DATE)) %>%
+  summarize(avg_t = mean(TAVG))
+
+temps_time <- temps_time %>% rename(DATE = `year(DATE)`)
+
+temps_time %>%
+  ggplot(aes(year, avg_t)) + geom_point(color = "cadetblue3") +
+  labs(
+    title = "Average Spring & Summer Temperatures",
+    subtitle = "(May-September)",
+    x = "Year",
+    y = "Average Temperature (F)"
+  ) +
+  geom_smooth(method = "lm", se = F, color = "cadetblue3") +
+  theme_minimal() +
+  stat_cor() + 
+  stat_regline_equation(label.y = 67.5)
+
+ggsave('~/Desktop/OEB 55/spring-temps.jpg', plot = last_plot())
+
+yoho <- full_join(spruced, temps_time, by = "DATE")
+
+yoho %>% 
+  ggplot(aes(avg_t, length, color=tree)) + geom_point(aes(alpha = 0.25)) +
+  labs(
+    x = "Annual Average Temperature (F)",
+    y = "Growth (mm)",
+    title = "Spring/Summer Average Temperature versus Annual Red Spruce Growth",
+    subtitle = "May-September"
+  ) +
+  theme_minimal() +
+  facet_wrap(~ tree) +
+  geom_smooth(method = "lm", se = F) + 
+  scale_color_discrete(name = "Tree ID") +
+  stat_cor(label.x = 63, label.y = 7.7) +
+  stat_regline_equation(label.x = 63, label.y = 6.7) +
+  theme(legend.position = "none")
+
+#ggsave('~/Desktop/OEB 55/springz.jpg', last_plot())
+
+yoho %>% 
+  ggplot(aes(avg_t, length, color = tree)) + geom_point() +
+  labs(
+    x = "Annual Average Temperature (F)",
+    y = "Growth (mm)",
+    title = "Annual Average Temperature versus \nAnnual Red Spruce Growth"
+  ) +
+  theme_minimal() +
+  geom_smooth(method = "lm", se = F) + 
+  scale_color_discrete(name = "Tree ID")
+
